@@ -7,7 +7,7 @@ export type Metric = {
   action: string;
 };
 
-export const metrics: Metric[] = [
+export const metrics: [Metric, ...Metric[]] = [
   {
     name: "Activity-Based Learning",
     shortName: "Activity learning",
@@ -115,7 +115,7 @@ export function calculateResult(scores: number[], mode: EvaluationMode) {
   const tier = total <= 24 ? "Critical" : total <= 39 ? "Developing" : "Proficient";
   const lowestScore = Math.min(...scores);
   const focusIndex = scores.findIndex((score) => score === lowestScore);
-  const focus = metrics[Math.max(0, focusIndex)] ?? metrics[0];
+  const focus: Metric = metrics[Math.max(0, focusIndex)] ?? metrics[0];
   const verdict =
     mode === "recruitment"
       ? total >= 40

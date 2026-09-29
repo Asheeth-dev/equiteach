@@ -1,4 +1,5 @@
-import { createFileRoute, useServerFn } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronLeft, ChevronRight, ClipboardCheck, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -40,7 +41,7 @@ function EquiTeach() {
   const [savedResult, setSavedResult] = useState<SavedResult | null>(null);
 
   const completed = scores.filter(Boolean).length;
-  const current = metrics[activeIndex];
+  const current = metrics[activeIndex] ?? metrics[0];
   const liveTotal = scores.reduce((sum, score) => sum + score, 0);
   const projectedTotal = completed ? Math.round((liveTotal / completed) * 10) : 0;
   const liveTier = projectedTotal <= 24 ? "Critical" : projectedTotal <= 39 ? "Developing" : "Proficient";
@@ -49,7 +50,7 @@ function EquiTeach() {
   const lowestCurrent = useMemo(() => {
     const scored = scores.map((score, index) => ({ score, index })).filter(({ score }) => score > 0);
     scored.sort((a, b) => a.score - b.score);
-    return scored[0] ? metrics[scored[0].index] : current;
+    return scored[0] ? (metrics[scored[0].index] ?? metrics[0]) : current;
   }, [scores, current]);
 
   const selectScore = (score: number) => {
@@ -227,7 +228,7 @@ function EquiTeach() {
               ['Ask', `“What would change if you tried this next lesson: ${savedResult.action ?? savedResult.focus.action}”`]
             ].map(([label, text]) => <div key={label} className="rounded-2xl border border-line bg-background/45 p-4"><p className="font-mono text-[10px] font-medium uppercase text-primary">{label}</p><p className="mt-2 text-[13px] leading-relaxed">{text}</p></div>)}</div></section>
           </div>
-          <section className="mt-5 rounded-[26px] border border-line bg-card p-5 backdrop-blur-xl"><div className="flex items-center justify-between"><div><p className="font-mono text-[10px] uppercase text-ink-soft">Behavior profile</p><p className="mt-1 text-sm text-ink-soft">All ten evidence points remain visible for a defensible conversation.</p></div><p className="font-mono text-[10px] text-ink-soft">Record {savedResult.id?.slice(0, 8)}</p></div><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{metrics.map((metric, index) => <div key={metric.name} className="rounded-xl border border-line bg-background/45 p-3"><div className="flex items-center justify-between gap-2"><p className="truncate text-xs font-medium">{metric.shortName}</p><span className="font-display text-lg font-semibold">{scores[index]}</span></div><div className="mt-2 h-1.5 rounded-full bg-foreground/10"><div className="h-full rounded-full bg-primary" style={{ width: `${scores[index] * 20}%` }} /></div></div>)}</div></section>
+          <section className="mt-5 rounded-[26px] border border-line bg-card p-5 backdrop-blur-xl"><div className="flex items-center justify-between"><div><p className="font-mono text-[10px] uppercase text-ink-soft">Behavior profile</p><p className="mt-1 text-sm text-ink-soft">All ten evidence points remain visible for a defensible conversation.</p></div><p className="font-mono text-[10px] text-ink-soft">Record {savedResult.id?.slice(0, 8)}</p></div><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{metrics.map((metric, index) => { const score = scores[index] ?? 0; return <div key={metric.name} className="rounded-xl border border-line bg-background/45 p-3"><div className="flex items-center justify-between gap-2"><p className="truncate text-xs font-medium">{metric.shortName}</p><span className="font-display text-lg font-semibold">{score}</span></div><div className="mt-2 h-1.5 rounded-full bg-foreground/10"><div className="h-full rounded-full bg-primary" style={{ width: `${score * 20}%` }} /></div></div>; })}</div></section>
         </main>
       )}
     </div>
