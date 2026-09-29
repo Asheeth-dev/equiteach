@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      evaluations: {
+        Row: {
+          class_subject: string
+          created_at: string
+          focus_metric: string
+          id: string
+          mode: string
+          scores: Json
+          teacher_name: string
+          tier: string
+          total_score: number
+          verdict: string
+        }
+        Insert: {
+          class_subject: string
+          created_at?: string
+          focus_metric: string
+          id?: string
+          mode: string
+          scores: Json
+          teacher_name: string
+          tier: string
+          total_score: number
+          verdict: string
+        }
+        Update: {
+          class_subject?: string
+          created_at?: string
+          focus_metric?: string
+          id?: string
+          mode?: string
+          scores?: Json
+          teacher_name?: string
+          tier?: string
+          total_score?: number
+          verdict?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
