@@ -14,3 +14,4 @@
 - Keep the hackathon MVP public and session-free; anonymous database access is limited to creating and reading evaluation rows so the live demo has no sign-in friction.
 - Keep rubric scoring deterministic in `src/lib/evaluation.ts`; judge-facing results must remain reproducible and work without an external AI service.
 - Use a public TanStack server function for evaluation persistence; the browser never receives privileged database credentials.
+- Generate evaluation PDFs in the browser from the deterministic saved result so report export requires no privileged data access.

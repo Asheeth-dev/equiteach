@@ -7,6 +7,22 @@ export type Metric = {
   action: string;
 };
 
+export type ImprovementArea = {
+  metric: Metric;
+  score: number;
+  observedGap: string;
+  nextStep: string;
+  evidenceToLookFor: string;
+};
+
+export type DetailedFeedback = {
+  summary: string;
+  strengths: Array<{ metric: Metric; score: number; evidence: string }>;
+  improvements: ImprovementArea[];
+  practicePlan: string[];
+  reviewPrompt: string;
+};
+
 export const metrics: [Metric, ...Metric[]] = [
   {
     name: "Activity-Based Learning",
@@ -130,4 +146,48 @@ export function calculateResult(scores: number[], mode: EvaluationMode) {
           : "Stabilize core classroom routines";
 
   return { total, tier, focus, verdict };
+}
+
+function observedGap(metric: Metric, score: number) {
+  if (score <= 1) return metric.anchors[1];
+  if (score === 2) return `Practice is emerging, but it is not yet consistent. Current evidence sits between: ${metric.anchors[1]} and ${metric.anchors[3]}`;
+  if (score === 3) return metric.anchors[3];
+  if (score === 4) return `Strong practice is visible, but not yet consistent across the class. The target is: ${metric.anchors[5]}`;
+  return metric.anchors[5];
+}
+
+export function getDetailedFeedback(scores: number[]): DetailedFeedback {
+  const ranked = metrics
+    .map((metric, index) => ({ metric, score: scores[index] ?? 0, index }))
+    .sort((a, b) => a.score - b.score || a.index - b.index);
+  const improvements = ranked.slice(0, 3).map(({ metric, score }) => ({
+    metric,
+    score,
+    observedGap: observedGap(metric, score),
+    nextStep: metric.action,
+    evidenceToLookFor: `Look for movement toward: ${score < 3 ? metric.anchors[3] : metric.anchors[5]}`,
+  }));
+  const strengths = [...ranked]
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, 2)
+    .map(({ metric, score }) => ({ metric, score, evidence: observedGap(metric, score) }));
+  const total = scores.reduce((sum, score) => sum + score, 0);
+  const summary = total >= 40
+    ? "Practice is consistently strong. Protect the strengths below while refining the few behaviors that can make student learning even more visible."
+    : total >= 25
+      ? "Several effective routines are visible, but they are not yet consistent across students or lesson phases. Focus on a small number of observable changes."
+      : "Core classroom routines need stabilization before adding complexity. Start with one repeatable action, observe its effect, and build from there.";
+  const primary = improvements[0] ?? { metric: metrics[0] };
+  return {
+    summary,
+    strengths,
+    improvements,
+    practicePlan: [
+      `Plan: choose one lesson and script this change — ${primary.metric.action}`,
+      `Practice: rehearse the routine once before class and use it at a clearly marked point in the lesson.`,
+      `Observe: collect evidence from at least three students, including one who usually needs additional support.`,
+      `Reflect: note what changed, what did not, and one adjustment for the next lesson.`,
+    ],
+    reviewPrompt: `At the next review, compare student evidence in ${primary.metric.name.toLowerCase()} and decide whether the routine is ready to keep, adapt, or replace.`,
+  };
 }
