@@ -97,7 +97,16 @@ function EquiTeach() {
     if (!savedResult) return;
     setExporting(true);
     try {
-      await downloadEvaluationReport({ teacherName, classSubject, mode, scores, total: savedResult.total, tier: savedResult.tier, verdict: savedResult.verdict, recordId: savedResult.id });
+      await downloadEvaluationReport({
+        teacherName,
+        classSubject,
+        mode,
+        scores,
+        total: savedResult.total,
+        tier: savedResult.tier,
+        verdict: savedResult.verdict,
+        ...(savedResult.id ? { recordId: savedResult.id } : {}),
+      });
     } finally {
       setExporting(false);
     }
