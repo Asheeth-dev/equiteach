@@ -26,6 +26,15 @@ export const Route = createFileRoute("/")({
   component: EquiTeach,
 });
 
+const GRADES = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const SUBJECTS = [
+  "English", "Hindi", "Mathematics", "Science", "Physics", "Chemistry", "Biology",
+  "Social Studies", "History", "Geography", "Civics", "Economics", "Computer Science",
+  "Environmental Studies", "Physical Education", "Art", "Music", "Sanskrit", "Regional Language",
+];
+
+const selectClassName = "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
+
 type Stage = "setup" | "observe" | "result";
 type SavedResult = ReturnType<typeof calculateResult> & { id?: string; action?: string };
 
