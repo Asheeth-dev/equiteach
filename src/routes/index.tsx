@@ -26,6 +26,15 @@ export const Route = createFileRoute("/")({
   component: EquiTeach,
 });
 
+const GRADES = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const SUBJECTS = [
+  "English", "Hindi", "Mathematics", "Science", "Physics", "Chemistry", "Biology",
+  "Social Studies", "History", "Geography", "Civics", "Economics", "Computer Science",
+  "Environmental Studies", "Physical Education", "Art", "Music", "Sanskrit", "Regional Language",
+];
+
+const selectClassName = "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
+
 type Stage = "setup" | "observe" | "result";
 type SavedResult = ReturnType<typeof calculateResult> & { id?: string; action?: string };
 
@@ -33,7 +42,9 @@ function EquiTeach() {
   const save = useServerFn(saveEvaluation);
   const [stage, setStage] = useState<Stage>("setup");
   const [teacherName, setTeacherName] = useState("Deepa Raman");
-  const [classSubject, setClassSubject] = useState("Class VIII · Science");
+  const [grade, setGrade] = useState("8");
+  const [subject, setSubject] = useState("Science");
+  const classSubject = `Class ${grade} · ${subject}`;
   const [mode, setMode] = useState<EvaluationMode>("recruitment");
   const [scores, setScores] = useState<number[]>(Array(10).fill(0));
   const [activeIndex, setActiveIndex] = useState(0);
@@ -162,7 +173,20 @@ function EquiTeach() {
             </div>
             <div className="mt-5 space-y-4">
               <div className="space-y-2"><Label htmlFor="teacher">Teacher name</Label><Input id="teacher" value={teacherName} onChange={(event) => setTeacherName(event.target.value)} /></div>
-              <div className="space-y-2"><Label htmlFor="class">Class and subject</Label><Input id="class" value={classSubject} onChange={(event) => setClassSubject(event.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="grade">Class</Label>
+                  <select id="grade" value={grade} onChange={(event) => setGrade(event.target.value)} className={selectClassName}>
+                    {GRADES.map((g) => <option key={g} value={g}>Class {g}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <select id="subject" value={subject} onChange={(event) => setSubject(event.target.value)} className={selectClassName}>
+                    {SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Evaluation mode</Label>
                 <div className="grid grid-cols-2 gap-2">
