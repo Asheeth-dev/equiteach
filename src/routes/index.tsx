@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronLeft, ChevronRight, ClipboardCheck, Download, RotateCcw, Target } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import teacherPortrait from "@/assets/deepa-raman.jpg";
 import { Button } from "@/components/ui/button";
@@ -90,11 +90,29 @@ function EquiTeach() {
       setSavedResult({ ...local, id: result.id, action: result.action });
       setStage("result");
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "The evaluation could not be saved.");
+      console.error(error);
+      setSaveError("We couldn't save this evaluation. Your scores are still here — check your connection and try again.");
     } finally {
       setSaving(false);
     }
   };
+
+  const fillSample = () => {
+    setScores([4, 3, 2, 4, 2, 3, 5, 4, 3, 3]);
+    setActiveIndex(9);
+  };
+
+  useEffect(() => {
+    if (stage !== "observe") return;
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
+      const n = Number(event.key);
+      if (n >= 1 && n <= 5) setScores((existing) => existing.map((v, i) => (i === activeIndex ? n : v)));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [stage, activeIndex]);
 
   const reset = () => {
     setScores(Array(10).fill(0));
@@ -157,14 +175,18 @@ function EquiTeach() {
       {stage === "setup" && (
         <main className="mx-auto grid max-w-6xl gap-10 px-5 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-20">
           <section className="rise max-w-2xl">
-            <p className="font-mono text-[11px] font-medium uppercase text-primary">Pedagogical intelligence · Built for evidence</p>
+            <p className="font-mono text-[11px] font-medium uppercase text-primary">For school leaders who hire and coach teachers</p>
             <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.04] sm:text-6xl">Evaluate what teachers do, not how they perform.</h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft">A calibrated 10-point observation converts visible classroom behavior into a defensible hiring decision or a practical coaching plan.</p>
-            <div className="mt-8 grid max-w-xl grid-cols-3 gap-3 border-t border-line pt-5">
-              {[['10', 'behavior metrics'], ['1–5', 'anchored scoring'], ['Instant', 'action plan']].map(([value, label]) => (
-                <div key={label}><p className="font-display text-2xl font-semibold">{value}</p><p className="mt-1 text-xs text-ink-soft">{label}</p></div>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft">Score 10 visible classroom behaviors against written anchors. Get a defensible hiring verdict or a practical coaching plan in under three minutes.</p>
+            <dl className="mt-8 grid max-w-xl gap-4 border-t border-line pt-5 sm:grid-cols-3">
+              {[
+                ['Problem', 'Demo-lesson hiring and reviews rely on gut feel and charisma.'],
+                ['Solution', 'Each score is tied to a written behavior anchor you can point to.'],
+                ['Different', 'Same scores give the same result every time. Every score comes with a next step.'],
+              ].map(([label, text]) => (
+                <div key={label}><dt className="font-mono text-[10px] font-medium uppercase text-primary">{label}</dt><dd className="mt-1.5 text-[13px] leading-snug text-ink-soft">{text}</dd></div>
               ))}
-            </div>
+            </dl>
           </section>
           <section className="rise rounded-[26px] border border-line bg-card p-5 backdrop-blur-xl sm:p-6">
             <div className="flex items-center gap-3 border-b border-line pb-5">
@@ -187,17 +209,21 @@ function EquiTeach() {
                   </select>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Evaluation mode</Label>
+              <fieldset className="space-y-2">
+                <legend className="mb-2 text-sm font-medium">Evaluation mode</legend>
                 <div className="grid grid-cols-2 gap-2">
-                  {([['recruitment', 'Recruitment demo'], ['in_service', 'In-service review']] as const).map(([value, label]) => (
-                    <Button key={value} type="button" variant={mode === value ? "scoreActive" : "score"} onClick={() => setMode(value)}>{label}</Button>
+                  {([['recruitment', 'Recruitment demo', 'Hire / conditional / decline'], ['in_service', 'In-service review', 'Detailed coaching plan']] as const).map(([value, label, hint]) => (
+                    <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)} className={cn("rounded-xl border px-3 py-2.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]", mode === value ? "border-primary/50 bg-accent ring-1 ring-primary/25" : "border-line bg-background/50 hover:border-primary/30")}>
+                      <span className="block text-sm font-semibold">{label}</span>
+                      <span className="mt-0.5 block text-[11px] text-ink-soft">{hint}</span>
+                    </button>
                   ))}
                 </div>
-              </div>
-              <Button variant="instrument" className="mt-2 h-11 w-full" disabled={teacherName.trim().length < 2 || classSubject.trim().length < 2} onClick={() => setStage("observe")}>
+              </fieldset>
+              <Button variant="instrument" className="mt-2 h-11 w-full" disabled={teacherName.trim().length < 2} onClick={() => setStage("observe")}>
                 Begin guided observation <ChevronRight />
               </Button>
+              <p className="text-center text-[11px] text-ink-soft">10 metrics · about 2 minutes · no sign-in</p>
             </div>
           </section>
         </main>
@@ -215,8 +241,8 @@ function EquiTeach() {
                   const active = index === activeIndex;
                   return (
                     <li key={metric.name}>
-                      <button type="button" onClick={() => setActiveIndex(index)} className={cn("flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[13px] transition-colors", active ? "bg-accent ring-1 ring-primary/25" : "hover:bg-muted")}>
-                        <span className={cn("grid size-6 shrink-0 place-items-center rounded-full font-mono text-[10px] font-medium", score ? "bg-foreground text-background" : active ? "bg-primary text-primary-foreground" : "bg-foreground/10 text-ink-soft")}>{index + 1}</span>
+                      <button type="button" aria-current={active ? "step" : undefined} onClick={() => setActiveIndex(index)} className={cn("flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", active ? "bg-accent ring-1 ring-primary/25" : "hover:bg-muted")}>
+                        <span className={cn("grid size-6 shrink-0 place-items-center rounded-full font-mono text-[10px] font-medium transition-colors", score ? "bg-foreground text-background" : active ? "bg-primary text-primary-foreground" : "bg-foreground/10 text-ink-soft")}>{score ? <Check className="size-3" /> : index + 1}</span>
                         <span className={cn("min-w-0 flex-1 truncate", active && "font-semibold")}>{metric.shortName}</span>
                         <span className="font-mono text-[12px] text-ink-soft">{score || '–'}</span>
                       </button>
@@ -224,31 +250,33 @@ function EquiTeach() {
                   );
                 })}
               </ol>
+              {completed < 10 && <button type="button" onClick={fillSample} className="mt-3 w-full rounded-xl border border-dashed border-line px-3 py-2 text-[12px] text-ink-soft transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Demo: fill a sample observation</button>}
             </div>
           </aside>
 
           <section className="rise col-span-12 lg:col-span-6">
             <div className="rounded-[26px] border border-line bg-card p-5 backdrop-blur-xl sm:p-6">
-              <div className="flex items-center justify-between gap-2"><span className="font-mono text-[10px] uppercase text-ink-soft">Active metric · {String(activeIndex + 1).padStart(2, '0')}</span><span className="rounded-full bg-amber-soft px-2.5 py-1 font-mono text-[10px] font-medium uppercase text-amber ring-1 ring-amber/30">BARS anchor</span></div>
-              <h1 className="mt-2 font-display text-[28px] font-semibold leading-tight">{current.name}</h1>
-              <p className="mt-2 text-sm text-ink-soft">Select the behavior closest to what you observed. Scores 2 and 4 represent the space between anchors.</p>
+              <div className="flex items-center justify-between gap-2"><span className="font-mono text-[10px] uppercase text-ink-soft">Metric {activeIndex + 1} of 10</span><span className="rounded-full bg-amber-soft px-2.5 py-1 font-mono text-[10px] font-medium uppercase text-amber ring-1 ring-amber/30">Behavior anchors</span></div>
+              <h1 key={activeIndex} className="rise mt-2 font-display text-[28px] font-semibold leading-tight">{current.name}</h1>
+              <p className="mt-2 text-sm text-ink-soft">Tap the behavior closest to what you saw. Use 2 or 4 when it falls between two anchors. Keys 1–5 also work.</p>
               <div className="mt-5 space-y-2.5">
                 {([1, 3, 5] as const).map((anchor) => (
-                  <button key={anchor} type="button" onClick={() => selectScore(anchor)} className={cn("flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors", currentScore === anchor ? "border-primary/40 bg-accent ring-1 ring-primary/20" : "border-line bg-background/40 hover:border-primary/30")}>
+                  <button key={anchor} type="button" aria-pressed={currentScore === anchor} onClick={() => selectScore(anchor)} className={cn("flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]", currentScore === anchor ? "border-primary/40 bg-accent ring-1 ring-primary/20" : "border-line bg-background/40 hover:border-primary/30")}>
                     <span className={cn("grid size-7 shrink-0 place-items-center rounded-lg font-mono text-[12px] font-medium", currentScore === anchor ? "bg-primary text-primary-foreground" : "bg-foreground/5")}>{anchor}</span>
                     <span className="text-[13px] leading-snug text-ink-soft">{current.anchors[anchor]}</span>
                   </button>
                 ))}
               </div>
               <div className="mt-6"><div className="flex items-baseline justify-between"><p className="font-mono text-[10px] uppercase text-ink-soft">Your score</p><p className="font-display text-xl font-semibold text-primary">{currentScore || '–'} / 5</p></div>
-                <div className="mt-2.5 grid grid-cols-5 gap-2">{[1,2,3,4,5].map((score) => <Button key={score} type="button" aria-label={`Score ${score}`} variant={currentScore === score ? "scoreActive" : "score"} onClick={() => selectScore(score)}>{score}</Button>)}</div>
+                <div className="mt-2.5 grid grid-cols-5 gap-2">{[1,2,3,4,5].map((score) => <Button key={score} type="button" aria-label={`Score ${score}`} aria-pressed={currentScore === score} variant={currentScore === score ? "scoreActive" : "score"} onClick={() => selectScore(score)}>{score}</Button>)}</div>
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-5">
-                <Button variant="instrument" disabled={!currentScore || (completed === 10 && activeIndex === 9)} onClick={continueObservation}>Save &amp; next metric <ChevronRight /></Button>
+                {completed < 10 && <Button variant="instrument" disabled={!currentScore} onClick={continueObservation}>Next metric <ChevronRight /></Button>}
                 {activeIndex > 0 && <Button variant="ghost" onClick={() => setActiveIndex((index) => index - 1)}><ChevronLeft /> Previous</Button>}
-                {completed === 10 && <Button className="sm:ml-auto" onClick={submitEvaluation} disabled={saving}>{saving ? "Saving…" : "Complete evaluation"}<ClipboardCheck /></Button>}
+                {completed === 10 && <Button className="sm:ml-auto" onClick={submitEvaluation} disabled={saving}>{saving ? "Saving evaluation…" : "Complete evaluation"}<ClipboardCheck /></Button>}
+                {completed < 10 && <p className="text-[12px] text-ink-soft sm:ml-auto">{10 - completed} left to score</p>}
               </div>
-              {saveError && <p role="alert" className="mt-3 text-sm text-destructive">{saveError}</p>}
+              {saveError && <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3"><p className="text-sm text-destructive">{saveError}</p><Button size="sm" variant="outline" onClick={submitEvaluation} disabled={saving}><RotateCcw /> Try again</Button></div>}
             </div>
           </section>
 
