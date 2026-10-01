@@ -173,7 +173,20 @@ function EquiTeach() {
             </div>
             <div className="mt-5 space-y-4">
               <div className="space-y-2"><Label htmlFor="teacher">Teacher name</Label><Input id="teacher" value={teacherName} onChange={(event) => setTeacherName(event.target.value)} /></div>
-              <div className="space-y-2"><Label htmlFor="class">Class and subject</Label><Input id="class" value={classSubject} onChange={(event) => setClassSubject(event.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="grade">Class</Label>
+                  <select id="grade" value={grade} onChange={(event) => setGrade(event.target.value)} className={selectClassName}>
+                    {GRADES.map((g) => <option key={g} value={g}>Class {g}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <select id="subject" value={subject} onChange={(event) => setSubject(event.target.value)} className={selectClassName}>
+                    {SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Evaluation mode</Label>
                 <div className="grid grid-cols-2 gap-2">
