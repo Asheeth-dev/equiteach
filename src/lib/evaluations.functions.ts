@@ -32,21 +32,23 @@ export const saveEvaluation = createServerFn({ method: "POST" })
     });
     const result = calculateResult(data.scores, data.mode);
     const scores = Object.fromEntries(metrics.map((metric, index) => [metric.name, data.scores[index]]));
-    const { data: saved, error } = await db
-      .from("evaluations")
-      .insert({
-        teacher_name: data.teacherName,
-        class_subject: data.classSubject,
-        mode: data.mode,
-        scores,
-        total_score: result.total,
-        tier: result.tier,
-        verdict: result.verdict,
-        focus_metric: result.focus.name,
-      })
-      .select("id, created_at")
-      .single();
+    const { error } = await db.from("evaluations").insert({
+      teacher_name: data.teacherName,
+      class_subject: data.classSubject,
+      mode: data.mode,
+      scores,
+      total_score: result.total,
+      tier: result.tier,
+      verdict: result.verdict,
+      focus_metric: result.focus.name,
+    });
 
     if (error) throw new Error(`Could not save evaluation: ${error.message}`);
-    return { ...result, focus: result.focus.name, action: result.focus.action, ...saved };
+    return {
+      ...result,
+      focus: result.focus.name,
+      action: result.focus.action,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+    };
   });
