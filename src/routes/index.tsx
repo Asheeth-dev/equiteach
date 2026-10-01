@@ -42,7 +42,9 @@ function EquiTeach() {
   const save = useServerFn(saveEvaluation);
   const [stage, setStage] = useState<Stage>("setup");
   const [teacherName, setTeacherName] = useState("Deepa Raman");
-  const [classSubject, setClassSubject] = useState("Class VIII · Science");
+  const [grade, setGrade] = useState("8");
+  const [subject, setSubject] = useState("Science");
+  const classSubject = `Class ${grade} · ${subject}`;
   const [mode, setMode] = useState<EvaluationMode>("recruitment");
   const [scores, setScores] = useState<number[]>(Array(10).fill(0));
   const [activeIndex, setActiveIndex] = useState(0);
