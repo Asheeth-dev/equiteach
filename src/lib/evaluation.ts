@@ -190,7 +190,7 @@ export function getDetailedFeedback(scores: number[]): DetailedFeedback {
   const support = strengths[1] ?? lead;
   const lowerFirst = (text: string) => {
     const trimmed = text.trim();
-    return trimmed ? trimmed[0].toLowerCase() + trimmed.slice(1) : trimmed;
+    return trimmed ? trimmed.charAt(0).toLowerCase() + trimmed.slice(1) : trimmed;
   };
   const secondary = improvements[1];
   const tertiary = improvements[2];
