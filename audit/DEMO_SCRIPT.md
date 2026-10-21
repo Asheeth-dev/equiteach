@@ -17,7 +17,7 @@ Press key **4** to show keyboard scoring, then click **Demo: fill a sample obser
 Click **Complete evaluation**. Expected: **33 / 50 · Developing · "One focused practice cycle"**, coaching focus **Real-Time Comprehension**.
 Show the marker on the tier scale, then the amber-highlighted Comprehension tile.
 Say: "The head teacher doesn't get a score and nothing else. They get the single behavior to work on, plus a scripted coaching conversation."
-Scroll to "What to strengthen next": the three improvement cards, the four-step practice cycle and strengths.
+Scroll to "What to strengthen next": the 8-sentence observer narrative (it names the strengths, the widest gap, why it matters and the one change to make), the three improvement cards, the four-step practice cycle and strengths.
 
 **2:00 — Differentiation (USP moment)**
 Click **Export PDF report**.

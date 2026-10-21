@@ -13,6 +13,7 @@
 - Observation: "Demo: fill a sample observation", keyboard scoring (1–5), check marks on scored metrics, "N left to score", clearer copy, metric title animates on change.
 - Errors: human message ("your scores are still here") + Try again button; technical detail goes to console only.
 - Results: tier scale (Critical / Developing / Proficient) with a marker at the actual score; coaching-focus metric highlighted in amber in the behavior profile; bars shaded by strength.
+- In-service feedback: an 8-sentence "Observer narrative" in a dedicated reading card — band context, named strengths and gaps with scores, why the gap matters, the single fastest change, the next two behaviors, and how to judge progress at the next review. The same narrative flows into the PDF report.
 - Accessibility: aria-pressed, aria-current, fieldset/legend, visible focus rings.
 - Fixed a pre-existing type error on the global error page.
 
