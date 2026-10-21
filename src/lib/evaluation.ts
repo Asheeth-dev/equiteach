@@ -192,16 +192,17 @@ export function getDetailedFeedback(scores: number[]): DetailedFeedback {
     const trimmed = text.trim();
     return trimmed ? trimmed.charAt(0).toLowerCase() + trimmed.slice(1) : trimmed;
   };
+  const quote = (text: string) => `"${lowerFirst(text).replace(/\.$/, "")}"`;
   const secondary = improvements[1];
   const tertiary = improvements[2];
   const summary = [
     `At ${total} of 50 points, this lesson sits in the ${band.toLowerCase()} band: ${bandMeaning}.`,
-    `The strongest behaviors were ${lead.metric.name} (${lead.score}/5) and ${support.metric.name} (${support.score}/5) — what was visible matches "${lowerFirst(lead.evidence)}".`,
-    `The widest gap is ${primary.metric.name} (${primary.score}/5), where the observation matches "${lowerFirst(primary.observedGap)}".`,
+    `The strongest behaviors were ${lead.metric.name} (${lead.score}/5) and ${support.metric.name} (${support.score}/5) — what was visible matches ${quote(lead.evidence)}.`,
+    `The widest gap is ${primary.metric.name} (${primary.score}/5), where the observation matches ${quote(primary.observedGap)}.`,
     `This gap matters because it is the one behavior that most limits what students actually do with the lesson, and the fastest lever is a single observable change: ${primary.metric.action}`,
     secondary ? `${secondary.metric.name} (${secondary.score}/5) should stabilize next${tertiary ? `, followed by ${tertiary.metric.name} (${tertiary.score}/5)` : ""}, so the plan stays focused instead of trying to fix everything at once.` : "",
     `The four-step practice cycle below scripts exactly how to make that first change stick in a real lesson.`,
-    `${primary.evidenceToLookFor}. At the next review, bring that student evidence and judge the routine against it, not on impressions.`,
+    `${primary.evidenceToLookFor.replace(/\.$/, "")}. At the next review, bring that student evidence and judge the routine against it, not on impressions.`,
     `Improving one behavior per cycle keeps the change visible to students within a single unit, and gives every observer the same written standard to measure against.`,
   ]
     .filter(Boolean)
