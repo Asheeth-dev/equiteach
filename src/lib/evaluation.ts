@@ -172,12 +172,40 @@ export function getDetailedFeedback(scores: number[]): DetailedFeedback {
     .slice(0, 2)
     .map(({ metric, score }) => ({ metric, score, evidence: observedGap(metric, score) }));
   const total = scores.reduce((sum, score) => sum + score, 0);
-  const summary = total >= 40
-    ? "Practice is consistently strong. Protect the strengths below while refining the few behaviors that can make student learning even more visible."
-    : total >= 25
-      ? "Several effective routines are visible, but they are not yet consistent across students or lesson phases. Focus on a small number of observable changes."
-      : "Core classroom routines need stabilization before adding complexity. Start with one repeatable action, observe its effect, and build from there.";
-  const primary = improvements[0] ?? { metric: metrics[0] };
+  const primary = improvements[0] ?? {
+    metric: metrics[0],
+    score: scores[0] ?? 0,
+    observedGap: "",
+    nextStep: "",
+    evidenceToLookFor: "",
+  };
+  const band = total >= 40 ? "Proficient" : total >= 25 ? "Developing" : "Critical";
+  const bandMeaning =
+    band === "Proficient"
+      ? "strong routines are largely consistent, and further gains come from refinement rather than repair"
+      : band === "Developing"
+        ? "several effective routines are present, but they are not yet consistent across students or lesson phases"
+        : "core classroom routines need stabilization before more advanced practices can take hold";
+  const lead = strengths[0] ?? { metric: metrics[0], score: 0, evidence: "" };
+  const support = strengths[1] ?? lead;
+  const lowerFirst = (text: string) => {
+    const trimmed = text.trim();
+    return trimmed ? trimmed[0].toLowerCase() + trimmed.slice(1) : trimmed;
+  };
+  const secondary = improvements[1];
+  const tertiary = improvements[2];
+  const summary = [
+    `At ${total} of 50 points, this lesson sits in the ${band.toLowerCase()} band: ${bandMeaning}.`,
+    `The strongest behaviors were ${lead.metric.name} (${lead.score}/5) and ${support.metric.name} (${support.score}/5) — what was visible matches "${lowerFirst(lead.evidence)}".`,
+    `The widest gap is ${primary.metric.name} (${primary.score}/5), where the observation matches "${lowerFirst(primary.observedGap)}".`,
+    `This gap matters because it is the one behavior that most limits what students actually do with the lesson, and the fastest lever is a single observable change: ${primary.metric.action}`,
+    secondary ? `${secondary.metric.name} (${secondary.score}/5) should stabilize next${tertiary ? `, followed by ${tertiary.metric.name} (${tertiary.score}/5)` : ""}, so the plan stays focused instead of trying to fix everything at once.` : "",
+    `The four-step practice cycle below scripts exactly how to make that first change stick in a real lesson.`,
+    `${primary.evidenceToLookFor}. At the next review, bring that student evidence and judge the routine against it, not on impressions.`,
+    `Improving one behavior per cycle keeps the change visible to students within a single unit, and gives every observer the same written standard to measure against.`,
+  ]
+    .filter(Boolean)
+    .join(" ");
   return {
     summary,
     strengths,
