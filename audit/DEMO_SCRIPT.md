@@ -24,4 +24,5 @@ Click **Export PDF report**.
 Say: "Same scores, same result, every time. That makes it defensible in hiring and fair in reviews. And every score ends with a next step for the teacher."
 
 **2:20 — Close**
+Optional: open **Progress** in the header — saved observations compared across review dates: trend line, first → latest totals, biggest gain and slipping behavior per metric.
 Optional: click **New observation**, switch to **Recruitment demo** to show the hire / conditional / decline verdict.
