@@ -53,3 +53,39 @@ export const saveEvaluation = createServerFn({ method: "POST" })
       created_at: new Date().toISOString(),
     };
   });
+
+export const getEvaluationHistory = createServerFn({ method: "GET" }).handler(async () => {
+  // Evaluation rows carry no private data (anonymous demo observations) and
+  // anon SELECT is revoked, so the privileged client stays inside this handler.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("evaluations")
+    .select("id, teacher_name, class_subject, mode, scores, total_score, tier, verdict, focus_metric, created_at")
+    .order("created_at", { ascending: true })
+    .limit(500);
+
+  if (error) throw new Error(`Could not load evaluation history: ${error.message}`);
+
+  const records: EvaluationRecord[] = (data ?? []).map((row) => {
+    const scores: Record<string, number> = {};
+    const raw = (row.scores ?? {}) as Record<string, unknown>;
+    for (const metric of metrics) {
+      const value = raw[metric.name];
+      if (typeof value === "number") scores[metric.name] = value;
+    }
+    return {
+      id: row.id,
+      teacherName: row.teacher_name,
+      classSubject: row.class_subject,
+      mode: row.mode,
+      scores,
+      totalScore: row.total_score,
+      tier: row.tier,
+      verdict: row.verdict,
+      focusMetric: row.focus_metric,
+      createdAt: row.created_at,
+    };
+  });
+
+  return { records };
+});
