@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, ChevronLeft, ChevronRight, ClipboardCheck, Download, RotateCcw, Target } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ClipboardCheck, Download, LineChart, RotateCcw, Target } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import teacherPortrait from "@/assets/deepa-raman.jpg";
@@ -160,6 +160,15 @@ function EquiTeach() {
               {mode === "recruitment" ? "Recruitment mode" : "In-service review"}
             </span>
           )}
+          <Link
+            to="/progress"
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5 text-[12px] font-medium transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              stage === "setup" && "ml-auto",
+            )}
+          >
+            <LineChart className="size-3.5" /> Progress
+          </Link>
           {stage !== "setup" && (
             <div className="ml-auto flex items-center gap-3">
               <div className="hidden text-right leading-tight sm:block">
