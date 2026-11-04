@@ -1,5 +1,5 @@
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, LineChart, RotateCcw, TrendingDown, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -41,7 +41,8 @@ const historyQueryOptions = () =>
     queryFn: () => getEvaluationHistory(),
   });
 
-function ProgressError({ reset }: { error: Error; reset: () => void }) {
+function ProgressError({ error, reset }: ErrorComponentProps) {
+  console.error(error);
   const router = useRouter();
   return (
     <div className="mx-auto max-w-md px-5 py-24 text-center">

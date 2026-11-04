@@ -97,8 +97,8 @@ export function buildEducatorProgress(records: EvaluationRecord[]): EducatorProg
     const drops = metricTrends.filter((trend) => trend.delta < 0).sort((a, b) => a.delta - b.delta || a.name.localeCompare(b.name));
     return {
       key,
-      teacherName: sorted[0].teacherName,
-      classSubject: sorted[0].classSubject,
+      teacherName: sorted[0]?.teacherName ?? "",
+      classSubject: sorted[0]?.classSubject ?? "",
       observationCount: rows.length,
       points,
       firstTotal: points[0]?.total ?? 0,
