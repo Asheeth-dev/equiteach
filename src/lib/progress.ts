@@ -79,7 +79,7 @@ export function buildEducatorProgress(records: EvaluationRecord[]): EducatorProg
     for (const row of sorted) byDay.set(dayKey(row.createdAt), row);
     const dayRows = [...byDay.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     const points: ReviewPoint[] = dayRows.map((row, index) => {
-      const previous = index > 0 ? dayRows[index - 1].totalScore : null;
+      const previous = index > 0 ? dayRows[index - 1]?.totalScore ?? null : null;
       return {
         date: dayKey(row.createdAt),
         label: labelFor(dayKey(row.createdAt)),
