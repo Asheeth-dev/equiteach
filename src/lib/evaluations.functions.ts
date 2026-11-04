@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 import { calculateResult, metrics } from "@/lib/evaluation";
+import type { EvaluationRecord } from "@/lib/progress";
 
 const evaluationInput = z.object({
   teacherName: z.string().trim().min(2).max(80),
