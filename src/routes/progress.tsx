@@ -76,7 +76,9 @@ const DeltaChip = ({ delta, suffix = "" }: { delta: number | null; suffix?: stri
 };
 
 function TrendSparkline({ points }: { points: EducatorProgress["points"] }) {
-  if (points.length < 2) return null;
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (!first || !last || points.length < 2) return null;
   const width = 640;
   const height = 150;
   const padding = { top: 18, bottom: 30, left: 8, right: 8 };
@@ -86,21 +88,23 @@ function TrendSparkline({ points }: { points: EducatorProgress["points"] }) {
   const span = Math.max(1, max - min);
   const stepX = (width - padding.left - padding.right) / (points.length - 1);
   const yFor = (total: number) => padding.top + (1 - (total - min) / span) * (height - padding.top - padding.bottom);
-  const coordinates = points.map((point, index) => ({ x: padding.left + index * stepX, y: yFor(point.total) }));
-  const line = coordinates.map((point) => `${point.x},${point.y}`).join(" ");
-  const area = `${padding.left},${height - padding.bottom} ${line} ${coordinates[coordinates.length - 1].x},${height - padding.bottom}`;
-  const rising = points[points.length - 1].total >= points[0].total;
+  const coordinates = points.map((point, index) => ({ x: padding.left + index * stepX, y: yFor(point.total), point }));
+  const start = coordinates[0];
+  if (!start) return null;
+  const line = coordinates.map(({ x, y }) => `${x},${y}`).join(" ");
+  const area = `${start.x},${height - padding.bottom} ${line} ${coordinates[coordinates.length - 1]?.x ?? start.x},${height - padding.bottom}`;
+  const rising = last.total >= first.total;
   const stroke = rising ? "var(--color-good)" : "var(--color-amber)";
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-36 w-full" role="img" aria-label={`Total score trend across ${points.length} review dates, from ${points[0].total} to ${points[points.length - 1].total} of 50`}>
+    <svg viewBox={`0 0 ${width} ${height}`} className="h-36 w-full" role="img" aria-label={`Total score trend across ${points.length} review dates, from ${first.total} to ${last.total} of 50`}>
       <polygon points={area} fill={stroke} opacity={0.09} />
       <polyline points={line} fill="none" stroke={stroke} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
-      {coordinates.map((point, index) => (
-        <g key={points[index].date}>
-          <circle cx={point.x} cy={point.y} r={4} fill="var(--color-background)" stroke={stroke} strokeWidth={2.5} />
-          <text x={point.x} y={point.y - 10} textAnchor="middle" className="fill-foreground" fontSize={11} fontWeight={600}>{points[index].total}</text>
-          <text x={point.x} y={height - 10} textAnchor="middle" className="fill-current text-ink-soft" fontSize={10}>{points[index].label}</text>
+      {coordinates.map(({ x, y, point }) => (
+        <g key={point.date}>
+          <circle cx={x} cy={y} r={4} fill="var(--color-background)" stroke={stroke} strokeWidth={2.5} />
+          <text x={x} y={y - 10} textAnchor="middle" className="fill-foreground" fontSize={11} fontWeight={600}>{point.total}</text>
+          <text x={x} y={height - 10} textAnchor="middle" className="fill-current text-ink-soft" fontSize={10}>{point.label}</text>
         </g>
       ))}
     </svg>
